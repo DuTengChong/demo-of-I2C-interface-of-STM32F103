@@ -14,12 +14,12 @@
 }*/
 void I2C1_EV_IRQHandler(void)
 {
-	if((I2C2->SR1 & ADDR) == ADDR) 		//ADDR = 1
-		I2C2->SR2;
-	if((I2C2->SR1 & STOPF) == STOPF)	//STOPF = 1
-		I2C2->CR1 = 0x0401;				//ACK & PE
-	/*if((I2C2->SR1 & SB) == SB)*/
-	if((I2C2->SR1 & BTF) == BTF){
+	if((I2C1->SR1 & ADDR) == ADDR) 		//ADDR = 1
+		I2C1->SR2;
+	if((I2C1->SR1 & STOPF) == STOPF)	//STOPF = 1
+		I2C1->CR1 = 0x0401;				//ACK & PE
+	/*if((I2C1->SR1 & SB) == SB)*/
+	if((I2C1->SR1 & BTF) == BTF){
 		I2C1->CR1 |= 0x0200;	//STOP
 		I2C1->CR2 &= 0xF7FF;	//DMAEN=0
 	}
@@ -33,13 +33,13 @@ void IIC1_Init(void)
 	RCC->APB1ENR |= 1<<21;
 	
 	I2C1->OAR1 = 0x4000;
-	I2C1->CR2 = 0x0024;	//36MHz£¬²»¿ªÆôÖĞ¶Ï
-	I2C1->CCR = 180;	//36MHzÏÂ£¬36M/360 = 100kHz£¬Õ¼¿Õ±È0.5
-	I2C1->TRISE = 72;	//±ê×¼Ä£Ê½µÄ×ÜÏß¹æ·¶
+	I2C1->CR2 = 0x0024;	//36MHzï¼Œä¸å¼€å¯ä¸­æ–­
+	I2C1->CCR = 180;	//36MHzä¸‹ï¼Œ36M/360 = 100kHzï¼Œå ç©ºæ¯”0.5
+	I2C1->TRISE = 72;	//æ ‡å‡†æ¨¡å¼çš„æ€»çº¿è§„èŒƒ
 	
 	//MY_NVIC_Init(1,2,I2C1_ER_IRQn,2);
 }
-//ÓÉÓÚÃ»ÓĞÉÏÏÂÀ­£¬ÕâÀïÅäÖÃÎªÍÆÍì
+//ç”±äºæ²¡æœ‰ä¸Šä¸‹æ‹‰ï¼Œè¿™é‡Œé…ç½®ä¸ºæ¨æŒ½
 void IIC2_Init(void)
 {
 	GPIOB_Enable();
@@ -49,15 +49,11 @@ void IIC2_Init(void)
 	RCC->APB1ENR |= 1<<22;
 
 	I2C2->OAR1 = 0x40B0;	//7bits slave mode, slave address = 0xB0
-	I2C2->CR2 = 0x0224;	//36MHz£¬²»¿ªÆô³ö´íÖĞ¶Ï£¬¿ªÆôÊÂ¼şÖĞ¶ÏÊ¹ÄÜ
-	I2C2->CCR = 180;	//36MHzÏÂ£¬36M/360 = 100kHz£¬Õ¼¿Õ±È0.5
-	I2C2->TRISE = 72;	//±ê×¼Ä£Ê½µÄ×ÜÏß¹æ·¶
-	//ÌıËµ¹Ù·½ÍÆ¼öÉèÖÃ×î¸ßÓÅÏÈ¼¶ÖĞ¶Ï£¬Òª²»¾Í×î¸ßÓÅÏÈ¼¶DMA
+	I2C2->CR2 = 0x0224;	//36MHzï¼Œä¸å¼€å¯å‡ºé”™ä¸­æ–­ï¼Œå¼€å¯äº‹ä»¶ä¸­æ–­ä½¿èƒ½
+	I2C2->CCR = 180;	//36MHzä¸‹ï¼Œ36M/360 = 100kHzï¼Œå ç©ºæ¯”0.5
+	I2C2->TRISE = 72;	//æ ‡å‡†æ¨¡å¼çš„æ€»çº¿è§„èŒƒ
+	//å¬è¯´å®˜æ–¹æ¨èè®¾ç½®æœ€é«˜ä¼˜å…ˆçº§ä¸­æ–­ï¼Œè¦ä¸å°±æœ€é«˜ä¼˜å…ˆçº§DMA
 	//MY_NVIC_Init(0,0,I2C2_EV_IRQn ,2);
-}
-unsigned char IIC1_DMA_Read(unsigned short addr,unsigned char *data,unsigned char data_num)
-{
-
 }
 //Read data from 24C02
 unsigned char E2PROM_Read(unsigned short addr,unsigned char *data,unsigned char data_num)
@@ -141,8 +137,8 @@ unsigned char E2PROM_Read(unsigned short addr,unsigned char *data,unsigned char 
 	//I2C1->CR1 &= 0xFFFE;	//disable I2C1
 	return 0;	//done well
 }
-//Ö÷½ÓÊÕÄ£Ê½£¬¶Á³ö data_num ¸öÊı¾İ
-//ĞèÒª 7bits ´ÓÉè±¸µØÖ·
+//ä¸»æ¥æ”¶æ¨¡å¼ï¼Œè¯»å‡º data_num ä¸ªæ•°æ®
+//éœ€è¦ 7bits ä»è®¾å¤‡åœ°å€
 /*unsigned char IIC2_ReadBytes(unsigned char addr,unsigned char *data,unsigned char data_num)
 {
 	unsigned short times=0;
@@ -195,9 +191,9 @@ unsigned char E2PROM_Read(unsigned short addr,unsigned char *data,unsigned char 
 	//I2C2->CR1 &= 0xFFFE;
 	return 0;	//done well
 }*/
-//Ö÷·¢ËÍÄ£Ê½
-//×¢Òâ£ºEEPROMĞ´Êı¾İºÍÏÂÒ»´Î²Ù×÷Ö®¼ä£¬Òª¼ä¸ôÒ»¶ÎÊ±¼ä
-//ĞèÒª7bits´ÓÉè±¸µØÖ·
+//ä¸»å‘é€æ¨¡å¼
+//æ³¨æ„ï¼šEEPROMå†™æ•°æ®å’Œä¸‹ä¸€æ¬¡æ“ä½œä¹‹é—´ï¼Œè¦é—´éš”ä¸€æ®µæ—¶é—´
+//éœ€è¦7bitsä»è®¾å¤‡åœ°å€
 unsigned char IIC1_WriteBytes(unsigned char addr,unsigned char *data,unsigned char data_num)
 {
 	unsigned short times=0;
